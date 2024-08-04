@@ -17,7 +17,6 @@ const DetailMovie = () => {
     const [newComment, setNewComment] = useState('');
     const [firstEpisodeSlug, setFirstEpisodeSlug] = useState(null);
     const { user } = useAuth();
-    console.log(user)
     const dispatch = useDispatch();
     const comments = useSelector((state) => state.comments.comments);
     const loadingComments = useSelector((state) => state.comments.loading);
@@ -33,8 +32,8 @@ const DetailMovie = () => {
                     const categoryName = removeVietnameseTones(response.category[2].list[0].name);
                     const relatedMoviesResponse = await getMoviesByCategory(categoryName);
                     setRelatedMovies(relatedMoviesResponse.items || []);
+                    
                 }
-
                 dispatch(clearComments());
                 dispatch(getComments({ movieSlug: slug }));
             } catch (error) {
@@ -128,7 +127,7 @@ const DetailMovie = () => {
                         </div>
                     </div>
                     <div className='mt-6 md:mt-12'>
-                        <SectionTitle title='Bạn có thể thích' />
+                        <SectionTitle title='Bạn có thể thích' link={"/danh-sach-phim"} />
                         {renderMovieListOrSkeleton(relatedMovies, MovieList, 7)}
                     </div>
                 </>

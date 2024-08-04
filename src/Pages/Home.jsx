@@ -81,7 +81,7 @@ const Home = () => {
             {renderMovieListOrSkeleton(data.singleMovies, MovieList, 7)}
             <SectionTitle title='Phim bộ' link={'/phim/the-loai/phim-bo'} />
             {renderMovieListOrSkeleton(data.seriesMovies, MovieList, 7)}
-            <SectionTitle title='Phim hoạt hình' link={'/phim/the-loai/phim-hoat-hinh'} />
+            <SectionTitle title='Phim hoạt hình' link={'/phim/the-loai/hoat-hinh'} />
             {renderMovieListOrSkeleton(data.animeMovies, MovieList, 7)}
             <SectionTitle title='TV Shows' link={'/phim/the-loai/tv-shows'} />
             {renderMovieListOrSkeleton(data.tvshowMovies, MovieList, 7)}
