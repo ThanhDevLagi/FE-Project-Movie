@@ -64,21 +64,21 @@ const Search = () => {
     }, []);
 
     return (
-        <div ref={searchContainerRef} className='relative top-0 left-0 transition-all'>
+        <div ref={searchContainerRef} className='relative'>
             <div className='relative'>
                 <input
-                    className='transition-all py-[4px] px-0 w-[200px] md:w-[160px] xl:px-[12px] xl:py-[8px] lg:w-[260px]  xl:w-[290px] outline-none bg-transparent border-b-2 focus:border-[#22A39F] text-white text-xs xl:text-base'
+                    className='transition-all py-1 px-2 md:py-2 md:px-4 w-full md:w-60 xl:w-72 bg-transparent border-b-2 focus:border-[#22A39F] text-white text-xs md:text-base'
                     type="text"
                     placeholder='Tìm kiếm tại đây...'
                     onChange={handleSearch}
                     onClick={() => setShowSearchList(true)}
                 />
-                <button className="absolute top-0 right-0 bottom-0 text-white px-2">
+                <button className="absolute  top-0 md:top-2 right-2 text-white">
                     <FontAwesomeIcon icon={faSearch} />
                 </button>
             </div>
             {showSearchList && (
-                <div className={`absolute ${data.length > 0 ? "bg-[#393E46]" : ""} w-full z-10 border-[#222e33]`}>
+                <div className={`absolute w-full mt-2 bg-[#393E46] z-10 border-[#222e33] rounded-lg`}>
                     <div className='flex flex-col gap-3 p-2'>
                         {loading && (
                             <div id='loading' className='loading w-5 h-5 rounded-full border-blue-500 border-4 border-r-4 border-r-transparent animate-spin mx-auto my-10'></div>

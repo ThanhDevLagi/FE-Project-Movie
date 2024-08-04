@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 const SearchItems = ({ data }) => {
     return (
-        <Link to={`/phim/${data.slug}`} className='flex gap-2 mb-4' key={data.id}>
-            <div className='w-full max-w-[50px]'>
+        <Link to={`/phim/${data.slug}`} className='flex gap-2 mb-4 items-center' key={data.id}>
+            <div className='w-full max-w-[50px] md:w-24'>
                 {data.thumb_url ? (
                     <img src={data.thumb_url} alt="item" className='w-full h-full block object-cover rounded' />
                 ) : (

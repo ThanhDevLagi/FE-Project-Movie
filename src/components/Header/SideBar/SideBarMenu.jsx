@@ -31,13 +31,6 @@ const linkWeb = [
         icon: faClapperboard,
         color: "text-green-theme",
         textcolor: "text-white"
-    },
-    {
-        name: 'Đăng xuất',
-        link: '#',
-        icon: faSignOutAlt,
-        color: "text-red-600",
-        textcolor: "text-red-500"
     }
 ];
 
@@ -70,24 +63,34 @@ const SideBarMenu = React.forwardRef((props, ref) => {
                             </Link>
                         </li>
                     )}
+                    {!user && (
+                        <li className='w-full rounded p-2 hover:bg-gray-600'>
+                            <Link to="/dang-nhap" className='flex items-center font-semibold text-white'>
+                                <FontAwesomeIcon className='text-[#00ADB5] text-xl' icon={faUser} />
+                                <span className='ml-4'>Đăng nhập</span>
+                            </Link>
+                        </li>
+                    )}
                     {linkWeb.map((item, index) => (
                         <li className='w-full rounded p-2 hover:bg-gray-600' key={index}>
-                            {item.name === 'Đăng xuất' && user ? (
-                                <button
-                                    className={`flex items-center font-semibold ${item.textcolor}`}
-                                    onClick={logout}
-                                >
-                                    <FontAwesomeIcon className={`${item.color} text-xl cursor-pointer`} icon={item.icon} />
-                                    <span className='ml-4'>{item.name}</span>
-                                </button>
-                            ) : (
-                                <Link to={item.link} className={`flex items-center font-semibold ${item.textcolor}`}>
-                                    <FontAwesomeIcon className={`${item.color} text-xl cursor-pointer`} icon={item.icon} />
-                                    <span className='ml-4'>{item.name}</span>
-                                </Link>
-                            )}
+                            <Link to={item.link} className={`flex items-center font-semibold ${item.textcolor}`}>
+                                <FontAwesomeIcon className={`${item.color} text-xl`} icon={item.icon} />
+                                <span className='ml-4'>{item.name}</span>
+                            </Link>
                         </li>
                     ))}
+                   
+                    {user && (
+                        <li className='w-full rounded p-2 hover:bg-gray-600'>
+                            <button
+                                className='flex items-center font-semibold text-red-500'
+                                onClick={logout}
+                            >
+                                <FontAwesomeIcon className='text-red-600 text-xl' icon={faSignOutAlt} />
+                                <span className='ml-4'>Đăng xuất</span>
+                            </button>
+                        </li>
+                    )}
                 </ul>
                 <div className='w-full h-[1px] bg-gray-600 mt-4'></div>
             </div>

@@ -14,10 +14,11 @@ export const getComments = createAsyncThunk('comments/getComments', async ({ mov
 // Async thunk to post a comment
 export const postComments = createAsyncThunk(
     "comments/postComments",
-    async ({ userId, movieSlug, comment }, { rejectWithValue }) => {
+    async ({ userId, userName, movieSlug, comment }, { rejectWithValue }) => {
         try {
             const response = await axios.post(`${API_BASE_URL}/comments`, {
                 userId,
+                userName,
                 movieSlug,
                 comment
             });
@@ -29,9 +30,9 @@ export const postComments = createAsyncThunk(
 );
 // Async thunk to post a reply to a comment
 export const postCommentsReply = createAsyncThunk('comments/postReply', 
-    async ({ userId, commentId, reply}, {rejectWithValue}) => {
+    async ({ userId, userName, commentId, reply}, {rejectWithValue}) => {
         try {
-            const response = await axios.post(`${API_BASE_URL}/commentsReply/${commentId}`, { userId, reply });
+            const response = await axios.post(`${API_BASE_URL}/commentsReply/${commentId}`, { userId, userName, reply });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
