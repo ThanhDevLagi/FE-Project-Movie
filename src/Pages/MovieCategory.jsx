@@ -53,7 +53,7 @@ const MovieCategory = () => {
         // Kiểm tra nếu là lần render đầu tiên
         const fetchCategoryName = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/films/the-loai/${slug}`);
+                const response = await axios.get(`https://be-project-movie.onrender.com/api/films/the-loai/${slug}`);
                 setCategoryName(response.data.cat.title);
             } catch (error) {
                 console.log(error);
@@ -73,12 +73,12 @@ const MovieCategory = () => {
         const handleScroll = () => {
             // Nếu đang loading hoặc đã hết dữ liệu thì không làm gì
             if (loading || !hasMore) return;
-            
+
             // Tính toán chiều cao của document và chiều cao từ đầu đến cuối trang
             const windowHeight = window.innerHeight;
             const documentHeight = document.documentElement.scrollHeight;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
+
             // Nếu người dùng cuộn đến cuối trang thì tự động load thêm
             if (windowHeight + scrollTop >= documentHeight - 200) {
                 handleLoadMore.current();

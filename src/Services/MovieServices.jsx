@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://localhost:5000/api/films";
+const API_URL = "https://be-project-movie.onrender.com/api/films";
 
 export const getMoviesDetail = async (slug) => {
     try {

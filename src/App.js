@@ -19,6 +19,8 @@ import ProtectedRoute from './ProtectedRoute';
 import FavoritesMovies from './Pages/FavoritesMovies';
 import UserInfo from './Pages/UserInfo';
 import GuestRoute from './GuestRoute';
+import MovieAdd from './Admin/MovieAdd';
+import MovieDetailAdmin from './Admin/MovieDetailAdmin';
 
 function App() {
     return (
@@ -36,11 +38,31 @@ function App() {
                 <Route path="/thong-tin-ca-nhan" element={<ProtectedRoute><UserLayout><UserInfo /></UserLayout></ProtectedRoute>} />
                 <Route path="*" element={<UserLayout><NotFound /></UserLayout>} />
                 <Route
-                    path="/admin/*"
+                    path="/admin"
                     element={
                         <ProtectedAdminRoute>
                             <AdminLayout>
                                 <AdminDashboard />
+                            </AdminLayout>
+                        </ProtectedAdminRoute>
+                    }
+                />
+                <Route
+                    path="/admin/addMovie"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminLayout>
+                                <MovieAdd />
+                            </AdminLayout>
+                        </ProtectedAdminRoute>
+                    }
+                />
+                <Route
+                    path="/admin/movie/:id"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminLayout>
+                                <MovieDetailAdmin />
                             </AdminLayout>
                         </ProtectedAdminRoute>
                     }

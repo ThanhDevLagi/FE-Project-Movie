@@ -36,11 +36,11 @@ const Home = () => {
     const fetchData = async () => {
         try {
             const [movieUpdateRes, singleMoviesRes, seriesMoviesRes, animeMoviesRes, tvShowsMoviesRes] = await Promise.all([
-                axios.get("http://localhost:5000/api/films/phim-moi-cap-nhat?page=1"),
-                axios.get("http://localhost:5000/api/films/phim-le?page=1"),
-                axios.get("http://localhost:5000/api/films/phim-bo?page=1"),
-                axios.get("http://localhost:5000/api/films/hoat-hinh?page=1"),
-                axios.get("http://localhost:5000/api/films/tv-shows?page=1"),
+                axios.get("https://be-project-movie.onrender.com/api/films/phim-moi-cap-nhat?page=1"),
+                axios.get("https://be-project-movie.onrender.com/api/films/phim-le?page=1"),
+                axios.get("https://be-project-movie.onrender.com/api/films/phim-bo?page=1"),
+                axios.get("https://be-project-movie.onrender.com/api/films/hoat-hinh?page=1"),
+                axios.get("https://be-project-movie.onrender.com/api/films/tv-shows?page=1"),
             ]);
             const randomMovie = getRandomItem(movieUpdateRes.data?.items || []);
 
@@ -75,15 +75,15 @@ const Home = () => {
             ) : (
                 data.movieUpdate.length > 0 && <FeaturedMovie data={data.movieUpdate[0]} />
             )}
-            <SectionTitle title='Phim mới cập nhật'  link={'/phim-moi-pho-bien'}/>
+            <SectionTitle title='Phim mới cập nhật' link={'/phim-moi-pho-bien'} />
             {renderMovieGridOrSkeleton(data.movieUpdate, MovieGrid, 10)}
-            <SectionTitle title='Phim lẻ' link={'/phim/the-loai/phim-le'}/>
+            <SectionTitle title='Phim lẻ' link={'/phim/the-loai/phim-le'} />
             {renderMovieListOrSkeleton(data.singleMovies, MovieList, 7)}
-            <SectionTitle title='Phim bộ'  link={'/phim/the-loai/phim-bo'}/>
+            <SectionTitle title='Phim bộ' link={'/phim/the-loai/phim-bo'} />
             {renderMovieListOrSkeleton(data.seriesMovies, MovieList, 7)}
-            <SectionTitle title='Phim hoạt hình'  link={'/phim/the-loai/phim-hoat-hinh'}/>
+            <SectionTitle title='Phim hoạt hình' link={'/phim/the-loai/phim-hoat-hinh'} />
             {renderMovieListOrSkeleton(data.animeMovies, MovieList, 7)}
-            <SectionTitle title='TV Shows'  link={'/phim/the-loai/tv-shows'}/>
+            <SectionTitle title='TV Shows' link={'/phim/the-loai/tv-shows'} />
             {renderMovieListOrSkeleton(data.tvshowMovies, MovieList, 7)}
         </div>
     );
@@ -91,7 +91,7 @@ const Home = () => {
 
 
 const renderMovieGridOrSkeleton = (movies, Component, skeletonCount) => (
-    movies.length > 0 ? <Component movieUpdate={movies}  /> : <MovieLoadingSkeletons count={skeletonCount} />
+    movies.length > 0 ? <Component movieUpdate={movies} /> : <MovieLoadingSkeletons count={skeletonCount} />
 );
 
 const renderMovieListOrSkeleton = (movies, Component, skeletonCount) => (

@@ -5,7 +5,7 @@ import LoadingSkeleton from '../components/Loading/LoadingSkeleton';
 
 const getMovies = async (page) => {
     try {
-        const response = await axios.get(`http://localhost:5000/api/films/phim-moi-cap-nhat?page=${page}`);
+        const response = await axios.get(`https://be-project-movie.onrender.com/api/films/phim-moi-cap-nhat?page=${page}`);
         return response.data.items || [];
     } catch (error) {
         console.error(error);
@@ -70,12 +70,12 @@ const Movie = () => {
         const handleScroll = () => {
             // Nếu đang loading hoặc đã hết dữ liệu thì không làm gì
             if (loading || !hasMore) return;
-            
+
             // Tính toán chiều cao của document và chiều cao từ đầu đến cuối trang
             const windowHeight = window.innerHeight;
             const documentHeight = document.documentElement.scrollHeight;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
+
             // Nếu người dùng cuộn đến cuối trang thì tự động load thêm
             if (windowHeight + scrollTop >= documentHeight - 200) {
                 handleLoadMore.current();

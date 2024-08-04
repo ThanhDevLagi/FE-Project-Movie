@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
 
 const LinkCategories = [
     { name: 'Hành Động', link: 'hanh-dong' },
@@ -28,29 +27,29 @@ const MoviesListCategory = () => {
     const [showInput, setShowInput] = useState(false);
     const [inputValue, setInputValue] = useState('');
 
-    const handleCategoryChange = (category) => {
+    const handleCategoryChange = useCallback((category) => {
         setSelectedCategory(category);
         setPage(1);
         setMovies([]);
         window.scrollTo(0, 0);
-    };
+    }, []);
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = useCallback((newPage) => {
         setPage(newPage);
         window.scrollTo(0, 0);
-    };
+    }, []);
 
-    const handlePageIncrement = () => {
+    const handlePageIncrement = useCallback(() => {
         if (page < totalPages) {
             setPage(page + 1);
         }
-    };
+    }, [page, totalPages]);
 
-    const handlePageDecrement = () => {
+    const handlePageDecrement = useCallback(() => {
         if (page > 1) {
             setPage(page - 1);
         }
-    };
+    }, [page]);
 
     const handleInputChange = (event) => {
         const value = event.target.value;
@@ -72,16 +71,21 @@ const MoviesListCategory = () => {
     useEffect(() => {
         const loadMovies = async () => {
             setLoading(true);
-            const response = await axios.get(`http://localhost:5000/api/films/the-loai/${selectedCategory.link}?page=${page}`);
-            setMovies(response.data.items || []);
-            setTotalPages(response.data.paginate.total_page || 1);
-            setLoading(false);
+            try {
+                const response = await axios.get(`https://be-project-movie.onrender.com/api/films/the-loai/${selectedCategory.link}?page=${page}`);
+                setMovies(response.data.items || []);
+                setTotalPages(response.data.paginate.total_page || 1);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
         };
         loadMovies();
         window.scrollTo(0, 0);
     }, [selectedCategory, page]);
 
-    const renderPagination = () => {
+    const renderPagination = useCallback(() => {
         const pages = [];
         const startPage = Math.max(1, page - 2);
         const endPage = Math.min(totalPages, startPage + 4);
@@ -114,16 +118,16 @@ const MoviesListCategory = () => {
         }
 
         return pages;
-    };
+    }, [page, totalPages, handlePageChange, showInput]);
 
     return (
         <div className="flex flex-col lg:flex-row p-4 lg:p-8 bg-gradient-to-b from-gray-800 to-black min-h-screen">
             <div className="flex flex-col gap-4 basis-full lg:basis-1/4 mb-8 lg:mb-0 lg:h-[500px] lg:sticky lg:top-32 custom-scrollbar overflow-y-auto bg-gray-900 p-4 rounded-lg shadow-lg">
                 <h2 className="text-2xl text-white font-bold mb-4 text-center">Danh Mục</h2>
                 {LinkCategories.map((item, index) => (
-                    <div 
-                        key={index} 
-                        onClick={() => handleCategoryChange(item)} 
+                    <div
+                        key={index}
+                        onClick={() => handleCategoryChange(item)}
                         className={`cursor-pointer text-lg font-medium py-2 px-4 rounded-md transition-colors ${selectedCategory.link === item.link ? 'bg-green-theme text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'}`}
                     >
                         Phim {item.name}
@@ -155,7 +159,7 @@ const MoviesListCategory = () => {
                                 className={`transition-all px-4 py-2 rounded-md ${page === 1 ? 'bg-gray-700 text-gray-400' : 'bg-green-theme text-white hover:bg-teal-700'}`}
                                 disabled={page === 1}
                             >
-                            Trở về
+                                Trở về
                             </button>
                             {renderPagination()}
                             <button
@@ -163,21 +167,21 @@ const MoviesListCategory = () => {
                                 className={`transition-all px-4 py-2 rounded-md ${page === totalPages ? 'bg-gray-700 text-gray-400' : 'bg-green-theme text-white hover:bg-teal-700'}`}
                                 disabled={page === totalPages}
                             >
-                               Tiếp Theo
+                                Tiếp Theo
                             </button>
                         </div>
                         {showInput && (
                             <div className="flex justify-center mt-4">
                                 <form onSubmit={handleInputSubmit} className="flex items-center gap-2">
-                                    <input 
-                                        type="text" 
-                                        value={inputValue} 
-                                        onChange={handleInputChange} 
-                                        className="px-3 py-2 rounded-md text-gray-800" 
-                                        placeholder="Nhập số trang" 
+                                    <input
+                                        type="text"
+                                        value={inputValue}
+                                        onChange={handleInputChange}
+                                        className="px-3 py-2 rounded-md text-gray-800"
+                                        placeholder="Nhập số trang"
                                     />
-                                    <button 
-                                        type="submit" 
+                                    <button
+                                        type="submit"
                                         className="px-4 py-2 bg-green-theme text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 transition duration-300"
                                     >
                                         Tìm kiếm

@@ -1,47 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import MovieDetail from '../components/MovieList/MovieDetail';
+import { useDispatch, useSelector } from 'react-redux';
 import { getMoviesDetail, getMoviesByCategory } from '../Services/MovieServices';
-import MovieLoadingSkeletons from '../components/Loading/MovieLoadingSkeletons';
+import MovieDetail from '../components/MovieList/MovieDetail';
 import SectionTitle from '../components/SectionTitle/SectionTitle';
 import MovieList from '../components/MovieList/MovieList';
+import MovieLoadingSkeletons from '../components/Loading/MovieLoadingSkeletons';
 import { useAuth } from '../hooks/AuthContext';
+import { clearComments, getComments, postComments, postCommentsReply } from '../Redux/commentSlice';
+import Comment from '../components/Comments/Comment';
 
 const DetailMovie = () => {
     const { slug } = useParams();
     const [movie, setMovie] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [relatedMovies, setRelatedMovies] = useState([]);
-    const [firstEpisodeSlug, setFirstEpisodeSlug] = useState(null);
-    const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [firstEpisodeSlug, setFirstEpisodeSlug] = useState(null);
     const { user } = useAuth();
+    const dispatch = useDispatch();
+    const comments = useSelector((state) => state.comments.comments);
+    const loadingComments = useSelector((state) => state.comments.loading);
+    const loading = !movie;
 
+    // useEffect để fetch dữ liệu
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await getMoviesDetail(slug);
-                if (response) {
-                    setMovie(response);
-                    if (response.category && response.category[3] && response.category[3].list) {
-                        const categoryName = response.category[3].list[0].name;
-                        const formattedCategoryName = removeVietnameseTones(categoryName);
-                        const relatedMoviesResponse = await getMoviesByCategory(formattedCategoryName);
-                        setRelatedMovies(relatedMoviesResponse.items);
-                    }
+                setMovie(response || null);
+
+                if (response?.category?.[2]?.list) {
+                    const categoryName = removeVietnameseTones(response.category[2].list[0].name);
+                    const relatedMoviesResponse = await getMoviesByCategory(categoryName);
+                    setRelatedMovies(relatedMoviesResponse.items || []);
                 }
+
+                dispatch(clearComments());
+                dispatch(getComments({ movieSlug: slug }));
             } catch (error) {
                 console.error('Error fetching movie data:', error);
+                setMovie(null);
                 setRelatedMovies([]);
-            } finally {
-                setLoading(false);
             }
         };
 
-        fetchData();
+        if (slug) fetchData();
         window.scrollTo(0, 0);
-    }, [slug]);
+    }, [slug, dispatch]);
 
+    // useCallback để ghi nhớ các hàm xử lý bình luận và phản hồi
+    const handleCommentSubmit = useCallback(() => {
+        if (!user) return alert('Bạn cần đăng nhập để bình luận');
+        if (newComment.trim()) {
+            dispatch(postComments({ userId: user.id, movieSlug: slug, comment: newComment }))
+                .then(() => setNewComment(''))
+                .catch((error) => console.error('Failed to post comment:', error));
+        }
+    }, [dispatch, newComment, slug, user]);
+
+    const handleReplySubmit = useCallback((reply, commentId) => {
+        if (!user) return alert('Bạn cần đăng nhập để phản hồi');
+        if (reply.trim()) {
+            dispatch(postCommentsReply({ userId: user.id, commentId, reply }))
+                .then(() => dispatch(getComments({ movieSlug: slug })))
+                .catch((error) => console.error('Failed to post reply:', error));
+        }
+    }, [dispatch, slug, user]);
+
+    // useEffect để tìm episode đầu tiên
     useEffect(() => {
         if (movie && movie.episodes) {
             let firstSlug = null;
@@ -56,129 +82,75 @@ const DetailMovie = () => {
         }
     }, [movie]);
 
-    const handleCommentSubmit = () => {
-        if (newComment.trim() !== '') {
-            setComments(prevComments => [
-                ...prevComments,
-                { user: user.name, text: newComment, replies: [] }
-            ]);
-            setNewComment('');
-        }
-    };
-
-    const handleReplySubmit = (index, reply) => {
-        if (reply.trim() !== '') {
-            setComments(prevComments => {
-                const updatedComments = [...prevComments];
-                updatedComments[index].replies.push({ user: user.name, text: reply });
-                return updatedComments;
-            });
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className='flex justify-center items-center h-screen'>
-                <div className='loading w-10 h-10 rounded-full border-blue-500 border-4 border-r-4 border-r-transparent animate-spin'></div>
-            </div>
-        );
-    }
-
-    return (
+    return loading ? (
+        <div className='flex justify-center items-center h-screen'>
+            <div className='loading w-10 h-10 rounded-full border-blue-500 border-4 border-r-4 border-r-transparent animate-spin'></div>
+        </div>
+    ) : (
         <div className='container mx-auto p-8'>
-            {!movie && (
+            {movie ? (
+                <>
+                    <MovieDetail movie={movie} slug={slug} user={user} firstEpisodeSlug={firstEpisodeSlug} />
+                    <div className='mt-12'>
+                        <h3 className='text-2xl text-white font-bold mb-4'>Bình luận:</h3>
+                        <div className='py-4 px-6 bg-[#1f1f1f] rounded-lg'>
+                            <div className='flex gap-4 mb-4'>
+                                <input
+                                    type="text"
+                                    className='flex-1 p-4 rounded-lg bg-[#2f2f2f] text-white'
+                                    placeholder='Viết bình luận của bạn...'
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                />
+                                <button
+                                    className={`bg-blue-500 text-white px-4 py-2 rounded-md ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    onClick={handleCommentSubmit}
+                                    disabled={!user}
+                                >
+                                    Gửi
+                                </button>
+                            </div>
+                            {loadingComments ? (
+                                <div className='flex justify-center items-center h-screen'>
+                                    <div className='loading w-6 h-6 rounded-full border-blue-500 border-4 border-r-4 border-r-transparent animate-spin'></div>
+                                </div>
+                            ) : (
+                                comments.length === 0 ? (
+                                    <p className='text-white text-lg'>Chưa có bình luận nào cho bộ phim này.</p>
+                                ) : (
+                                    comments.map((comment) => (
+                                        <Comment
+                                            key={comment._id}
+                                            comment={comment}
+                                            onReplySubmit={(reply) => handleReplySubmit(reply, comment._id)}
+                                        />
+                                    ))
+                                )
+                            )}
+                        </div>
+                    </div>
+                    <div className='mt-12'>
+                        <SectionTitle title='Bạn có thể thích' />
+                        {renderMovieListOrSkeleton(relatedMovies, MovieList, 7)}
+                    </div>
+                </>
+            ) : (
                 <div className='h-96 flex items-center justify-center'>
                     <h1 className='text-4xl text-white font-medium text-center'>Phim này chưa cập nhật</h1>
-                </div>
-            )}
-            {movie && (
-                <MovieDetail movie={movie} slug={slug} firstEpisodeSlug={firstEpisodeSlug} user={user} />
-            )}
-            <div className='mt-12'>
-                <h3 className='text-2xl text-white font-bold mb-4'>Bình luận:</h3>
-                <div className='py-4 px-6 bg-[#1f1f1f] rounded-lg'>
-                    <div className='flex gap-4 mb-4'>
-                        <input 
-                            type="text" 
-                            className='flex-1 p-2 rounded-lg bg-[#2f2f2f] text-white' 
-                            placeholder='Viết bình luận của bạn...' 
-                            value={newComment} 
-                            onChange={(e) => setNewComment(e.target.value)} 
-                        />
-                        <button 
-                            className='bg-blue-500 text-white px-4 py-2 rounded-md' 
-                            onClick={handleCommentSubmit}
-                        >
-                            Gửi
-                        </button>
-                    </div>
-                    {comments.map((comment, index) => (
-                        <Comment 
-                            key={index} 
-                            comment={comment} 
-                            onReplySubmit={(reply) => handleReplySubmit(index, reply)} 
-                        />
-                    ))}
-                </div>
-            </div>
-            {movie && (
-                <div className='mt-12'>
-                    <SectionTitle title='Bạn có thể thích' />
-                    {renderMovieListOrSkeleton(relatedMovies, MovieList, 7)}
                 </div>
             )}
         </div>
     );
 };
 
-const Comment = ({ comment, onReplySubmit }) => {
-    const [reply, setReply] = useState('');
-    const [showReplies, setShowReplies] = useState(false);
-
-    return (
-        <div className='bg-[#2f2f2f] p-4 mb-4 rounded-lg'>
-            <p className='text-white mb-2'><strong>{comment.user}:</strong> {comment.text}</p>
-            {comment.replies.length > 0 && (
-                <button 
-                    className='text-blue-400 mb-2' 
-                    onClick={() => setShowReplies(!showReplies)}
-                >
-                    {showReplies ? 'Ẩn phản hồi' : `Xem ${comment.replies.length} phản hồi`}
-                </button>
-            )}
-            {showReplies && comment.replies.map((reply, idx) => (
-                <div key={idx} className='ml-6 mb-2'>
-                    <p className='text-white'><strong>{reply.user}:</strong> {reply.text}</p>
-                </div>
-            ))}
-            <div className='flex gap-4'>
-                <input 
-                    type="text" 
-                    className='flex-1 py-2 px-4 rounded-lg bg-[#3f3f3f] text-white' 
-                    placeholder='Viết phản hồi...' 
-                    value={reply} 
-                    onChange={(e) => setReply(e.target.value)} 
-                />
-                <button 
-                    className='bg-blue-500 text-white px-4 py-2 rounded-md' 
-                    onClick={() => onReplySubmit(reply)}
-                >
-                    Gửi
-                </button>
-            </div>
-        </div>
-    );
+const removeVietnameseTones = (str) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+        .replace(/\s+/g, '-').toLowerCase();
 };
 
 const renderMovieListOrSkeleton = (movies, Component, skeletonCount) => (
     movies && movies.length > 0 ? <Component MovieList={movies} count={6} /> : <MovieLoadingSkeletons count={skeletonCount} />
 );
-
-const removeVietnameseTones = (str) => {
-    str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    str = str.replace(/đ/g, 'd').replace(/Đ/g, 'D');
-    str = str.replace(/\s+/g, '-').toLowerCase();
-    return str;
-};
 
 export default DetailMovie;

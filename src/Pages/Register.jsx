@@ -95,7 +95,7 @@ const Register = () => {
                                         className='w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600 transition-transform transform hover:scale-105 flex justify-center items-center'
                                         disabled={formik.isSubmitting}
                                     >
-                                        {formik.isSubmitting ? <Spinner text={'Đang xử lý'} /> : 'Đăng Ký'}
+                                        {formik.isSubmitting ? <Spinner text={'...'} /> : 'Đăng Ký'}
                                     </button>
                                 </div>
                                 <div className="mt-6 text-center">

@@ -53,7 +53,7 @@ const Header = ({ user, logout }) => { // Receive the user as a prop
                 <div className='ml-auto md:mf-0 flex items-center gap-4 xl:gap-6'>
                     <Search />
                     {user ? (
-                        <div className='hidden md:block'>
+                        <div className='hidden md:block z-30'>
                                 <UserDropdown user={user} logout={logout}/>
                             </div>
                     ) : (

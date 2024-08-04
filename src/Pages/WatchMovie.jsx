@@ -12,7 +12,7 @@ const WatchMovie = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/films/${slug}`);
+                const response = await axios.get(`https://be-project-movie.onrender.com/api/films/${slug}`);
                 setMovie(response.data.movie || null);
                 setLoading(false);
             } catch (error) {
@@ -44,7 +44,7 @@ const WatchMovie = () => {
                 movie.episodes.forEach(episodeGroup => {
                     episodeGroup.items.forEach(item => {
                         if (item.slug === episode || item.slug === `tap-${episode}`) {
-                            foundEmbed = item.embed;
+                            foundEmbed = item.embed || item.m3u8;
                         }
                     });
                 });
@@ -71,7 +71,7 @@ const WatchMovie = () => {
                     <iframe
                         title="Watch Movie"
                         className="absolute inset-0 w-full h-full rounded-lg object-cover"
-                        src={embedLink}
+                        src={embedLink }
                         allowFullScreen
                         loading="lazy"
                     ></iframe>
